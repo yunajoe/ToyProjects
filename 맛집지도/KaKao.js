@@ -45,19 +45,19 @@ const dataSet = [
     {
       title: "아카사카",
       address: "서울 서초구 서초대로74길 23",
-      url: "https://www.youtube.com/watch?v=1YOJbOUR4vw&t=88s",
+      url: "https://www.youtube.com/watch?v=5YeceyCzGx4",
       category: "일식",
     },
     {
         title: "IFC 스타벅스",
         address: " 서울 영등포구 국제금융로 10",
-        url: "https://www.youtube.com/watch?v=1YOJbOUR4vw&t=88s",
+        url: "https://www.youtube.com/watch?v=9z9nkTPKVTw",
         category: "기타", 
     },
     {
         title: "애플하우스",
         address: "서울 서초구 신반포로 50",
-        url: "https://www.youtube.com/watch?v=1YOJbOUR4vw&t=88s",
+        url: "https://www.youtube.com/watch?v=bXwXD1Gz0GM",
         category: "분식", 
     }, 
 ];
@@ -84,7 +84,25 @@ function getCoordsByAddress(address) {
 }
 
 function getContent(data){
-    return `<div>안뇽!!!</div>`; 
+    // 유튜브 썸네일 id가져오기 
+    let replaceUrl = data.url;
+    let finUrl = '';
+    replaceUrl = replaceUrl.replace("https://youtu.be/", '');
+    replaceUrl = replaceUrl.replace("https://www.youtube.com/embed/", '');
+    replaceUrl = replaceUrl.replace("https://www.youtube.com/watch?v=", '');
+    finUrl = replaceUrl.split('&')[0];
+    // windowinfo 사진 + 글 + 유튭링크
+    return `
+        <div class="infowindow">
+            <div class="infowindow_img">
+                <img src="https://img.youtube.com/vi/${finUrl}/mqdefault.jpg"  width="50" height="50"> 
+            </div>
+            <div class="infowindow_body">       
+                <h5>${data.title}</h5>
+                <p>${data.address}</p> 
+                <a href=${data.url} target="_blank">유튜브영상보러가기</a>
+            </div>
+        </div> `; 
 }
 
 
@@ -103,19 +121,22 @@ async function setMap() {
         content: getContent(dataSet[i]), // 인포윈도우에 표시할 내용        
       });    
 
+    // 클릭하면 windowinfo보이게 하기 
+    kakao.maps.event.addListener(marker, 'click', makeOverListener(map, marker, infowindow));
 
-    kakao.maps.event.addListener(marker, 'mouseover', makeOverListener(map, marker, infowindow));
-    kakao.maps.event.addListener(marker, 'mouseout', makeOutListener(infowindow));
+    // addLister(marker라고 하면은 안 보인당)
+    kakao.maps.event.addListener(map, 'mouseout', makeOutListener(infowindow));
 
 
-    // 인포윈도우를 표시하는 클로저를 만드는 함수입니다 
+    // 인포윈도우를 표시하는 클로저를 만드는 함수
+    // 현재 인포윈도를 클릭하면은 클릭한 모든 장소의 윈포 윈도우가 뜬다.
     function makeOverListener(map, marker, infowindow) {
         return function() {
             infowindow.open(map, marker);
         };
     }
 
-    // 인포윈도우를 닫는 클로저를 만드는 함수입니다 
+    // 인포윈도우를 닫는 클로저를 만드는 함수
     function makeOutListener(infowindow) {
         return function() {
             infowindow.close();
